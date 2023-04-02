@@ -61,10 +61,10 @@ class BaseScheduler:
             agent: An Agent to be added to the schedule. NOTE: The agent must
             have a step() method.
         """
-        if agent.unique_id in self._agents:
-            raise Exception(
-                f"Agent with unique id {repr(agent.unique_id)} already added to scheduler"
-            )
+        # if agent.unique_id in self._agents:
+        #  raise Exception(
+        #   f"Agent with unique id {repr(agent.unique_id)} already added to scheduler"
+        # )
 
         self._agents[agent.unique_id] = agent
 

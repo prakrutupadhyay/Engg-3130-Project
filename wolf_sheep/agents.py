@@ -1,5 +1,5 @@
 import mesa
-from wolf_sheep.random_walk import RandomWalker
+from random_walk import RandomWalker
 
 
 class Sheep(RandomWalker):
@@ -9,17 +9,22 @@ class Sheep(RandomWalker):
     The init is the same as the RandomWalker.
     """
 
-    energy = None
+    energy = 20
+    unique_id_counter = 0
 
-    def __init__(self, unique_id, pos, model, moore, energy=None):
-        super().__init__(unique_id, pos, model, moore=moore)
+    def __init__(self, pos, model, moore, energy=None):
+
         self.energy = energy
+        self.pos = pos
+        self.unique_id = get_next_unique_id(cls=Sheep)
 
     def step(self):
         """
         A model step. Move, then eat grass and reproduce.
         """
-        self.random_move()
+        # self.random_move()
+        self.move_away_from(self, Wolf)
+
         living = True
 
         if self.model.grass:
@@ -28,7 +33,8 @@ class Sheep(RandomWalker):
 
             # If there is grass available, eat it
             this_cell = self.model.grid.get_cell_list_contents([self.pos])
-            grass_patch = [obj for obj in this_cell if isinstance(obj, GrassPatch)][0]
+            grass_patch = [
+                obj for obj in this_cell if isinstance(obj, GrassPatch)][0]
             if grass_patch.fully_grown:
                 self.energy += self.model.sheep_gain_from_food
                 grass_patch.fully_grown = False
@@ -56,14 +62,22 @@ class Wolf(RandomWalker):
     """
 
     energy = None
+    unique_id_counter = 200
 
-    def __init__(self, unique_id, pos, model, moore, energy=None):
-        super().__init__(unique_id, pos, model, moore=moore)
+    def __init__(self, pos, model, moore, energy=None):
+
         self.energy = energy
+        self.energy = energy
+        self.pos = pos
+        self.unique_id = get_next_unique_id(cls=Wolf)
 
     def step(self):
         self.random_move()
         self.energy -= 1
+
+    def get_next_unique_id(cls):
+        cls.unique_id_counter += 1
+        return cls.unique_id_counter
 
         # If there are sheep present, eat one
         x, y = self.pos
@@ -118,3 +132,8 @@ class GrassPatch(mesa.Agent):
                 self.countdown = self.model.grass_regrowth_time
             else:
                 self.countdown -= 1
+
+
+def get_next_unique_id(cls):
+    cls.unique_id_counter += 1
+    return cls.unique_id_counter
