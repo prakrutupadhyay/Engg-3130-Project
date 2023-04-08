@@ -47,8 +47,15 @@ class RandomWalker(mesa.Agent):
             Move away from the nearest agent of class agent_class.
         """
         neighbors = self.model.grid.get_neighbors(self.pos, self.moore, True)
-        agents = [agent for agent in neighbors if isinstance(
-            agent, Wolf)]
+        wolf_neighbors = []
+
+        for neighbor in neighbors:
+            if isinstance(neighbor, Wolf):
+                wolf_neighbors.append(neighbor)
+
+        print(wolf_neighbors)
+        print("Wolf Neighbors: ", neighbors)
+
         # if agents:
         #     # Move directly away from the nearest agent of class agent_class
         #     agent_distances = [self.model.grid.get_distance(

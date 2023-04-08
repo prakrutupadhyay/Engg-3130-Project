@@ -19,8 +19,8 @@ class Sheep(RandomWalker):
         """
         A model step. Move, then eat grass and reproduce.
         """
-        self.random_move()
-        # self.move_away_from(self, Wolf)
+        # self.random_move()
+        self.move_away_from(self, Wolf)
         living = True
 
         if self.model.grass:
