@@ -4,6 +4,7 @@ Generalized behavior for random walking, one grid cell at a time.
 
 import mesa
 from mesa.space import MultiGrid
+import numpy as np
 
 
 class RandomWalker(mesa.Agent):
@@ -49,12 +50,35 @@ class RandomWalker(mesa.Agent):
         neighbors = self.model.grid.get_neighbors(self.pos, self.moore, True)
         wolf_neighbors = []
 
+        # Find all wolf neighbors
         for neighbor in neighbors:
-            if isinstance(neighbor, Wolf):
+            if isinstance(neighbor, WolfSheep):
                 wolf_neighbors.append(neighbor)
 
-        print(wolf_neighbors)
-        print("Wolf Neighbors: ", neighbors)
+        # If there are no wolf neighbors, move randomly
+        if not wolf_neighbors:
+            self.random_move()
+            return
+
+        # Get the position of the nearest wolf neighbor
+        nearest_wolf_pos = min(wolf_neighbors, key=lambda wolf: np.linalg.norm(
+            np.array(self.pos) - np.array(wolf.pos))).pos
+
+        # Find the direction away from the nearest wolf neighbor
+        move_direction = np.array(self.pos) - np.array(nearest_wolf_pos)
+        move_direction = move_direction / np.linalg.norm(move_direction)
+        move_direction = tuple(np.round(move_direction).astype(int))
+
+        # Find the cell to move to
+        move_to = tuple(np.array(self.pos) + move_direction)
+
+        # If the cell to move to is not valid, move randomly
+        if not self.model.grid.is_cell_empty(move_to):
+            self.random_move()
+            return
+
+        # Move to the chosen cell
+        self.model.grid.move_agent(self, move_to)
 
         # if agents:
         #     # Move directly away from the nearest agent of class agent_class
