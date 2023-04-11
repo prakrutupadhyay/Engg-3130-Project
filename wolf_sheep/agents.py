@@ -82,10 +82,14 @@ class Sheep(RandomWalker):
         move_direction = tuple(np.round(move_direction).astype(int))
 
         # Find the cell to move to
-        move_to = tuple(np.array(self.pos))
+        # print(move_direction)
+        new_pos = self.pos + move_direction
+        if (new_pos[0] >= 0 and new_pos[0] < 20 and new_pos[1] >= 0 and new_pos[1] < 20):
+
+            move_to = tuple(np.array(new_pos))  # self.pos
 
         # If the cell to move to is not valid, move randomly
-        if not self.model.grid.is_cell_empty(move_to):
+        if not self.model.grid.is_cell_empty(move_to[:2]):
             self.random_move()
             return
 
