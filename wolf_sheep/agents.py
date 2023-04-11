@@ -1,5 +1,6 @@
 import mesa
 from wolf_sheep.random_walk import RandomWalker
+import numpy as np
 
 
 class Sheep(RandomWalker):
@@ -20,7 +21,7 @@ class Sheep(RandomWalker):
         A model step. Move, then eat grass and reproduce.
         """
         # self.random_move()
-        self.move_away_from(self, Wolf)
+        self.move_away_from()
         living = True
 
         if self.model.grass:
@@ -51,6 +52,62 @@ class Sheep(RandomWalker):
             self.model.grid.place_agent(lamb, self.pos)
             self.model.schedule.add(lamb)
 
+    def move_away_from(self):
+        """
+            Move away from the nearest agent of class agent_class.
+        """
+        neighbors = self.model.grid.get_neighbors(self.pos, self.moore, True)
+        wolf_neighbors = []
+
+        # Find all wolf neighbors
+        for neighbor in neighbors:
+
+            this_cell = self.model.grid.get_cell_list_contents([self.pos])
+            wolf = [obj for obj in this_cell if isinstance(obj, Wolf)]
+
+            if len(wolf) > 0:
+                wolf_neighbors.append(neighbor)
+        # # If there are no wolf neighbors, move randomly
+        if not wolf_neighbors:
+            self.random_move()
+            return
+
+        # Get the position of the nearest wolf neighbor
+        nearest_wolf_pos = min(wolf_neighbors, key=lambda wolf: np.linalg.norm(
+            np.array(self.pos) - np.array(wolf.pos))).pos
+
+        # Find the direction away from the nearest wolf neighbor
+        move_direction = np.array(self.pos) - np.array(nearest_wolf_pos)
+        move_direction = move_direction / np.linalg.norm(move_direction)
+        move_direction = tuple(np.round(move_direction).astype(int))
+
+        # Find the cell to move to
+        move_to = tuple(np.array(self.pos))
+
+        # If the cell to move to is not valid, move randomly
+        if not self.model.grid.is_cell_empty(move_to):
+            self.random_move()
+            return
+
+        # Move to the chosen cell
+        self.model.grid.move_agent(self, move_to)
+
+        # if agents:
+        #     # Move directly away from the nearest agent of class agent_class
+        #     agent_distances = [self.model.grid.get_distance(
+        #         agent.pos, self.pos) for agent in agents]
+        #     agent_to_flee = agents[agent_distances.index(min(agent_distances))]
+        #     x, y = self.pos
+        #     dx = x - agent_to_flee.pos[0]
+        #     dy = y - agent_to_flee.pos[1]
+        #     new_x, new_y = x + dx, y + dy
+        #     if self.model.grid.is_cell_empty((new_x, new_y)):
+        #         self.model.grid.move_agent(self, (new_x, new_y))
+        #     else:
+        #         self.random_move()
+        # else:
+        #     self.random_move()
+
 
 class Wolf(RandomWalker):
     """
@@ -64,8 +121,7 @@ class Wolf(RandomWalker):
         self.energy = energy
 
     def step(self):
-        # self.random_move()
-        self.move_away_from(self, Wolf)
+        self.random_move()
         self.energy -= 1
 
         # If there are sheep present, eat one

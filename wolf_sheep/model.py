@@ -122,7 +122,8 @@ class WolfSheep(mesa.Model):
                 else:
                     countdown = self.random.randrange(self.grass_regrowth_time)
 
-                patch = GrassPatch(self.next_id(), (x, y), self, fully_grown, countdown)
+                patch = GrassPatch(self.next_id(), (x, y),
+                                   self, fully_grown, countdown)
                 self.grid.place_agent(patch, (x, y))
                 self.schedule.add(patch)
 
@@ -139,7 +140,8 @@ class WolfSheep(mesa.Model):
                     self.schedule.time,
                     self.schedule.get_type_count(Wolf),
                     self.schedule.get_type_count(Sheep),
-                    self.schedule.get_type_count(GrassPatch, lambda x: x.fully_grown),
+                    self.schedule.get_type_count(
+                        GrassPatch, lambda x: x.fully_grown),
                 ]
             )
 
@@ -150,7 +152,8 @@ class WolfSheep(mesa.Model):
             print("Initial number sheep: ", self.schedule.get_type_count(Sheep))
             print(
                 "Initial number grass: ",
-                self.schedule.get_type_count(GrassPatch, lambda x: x.fully_grown),
+                self.schedule.get_type_count(
+                    GrassPatch, lambda x: x.fully_grown),
             )
 
         for i in range(step_count):
@@ -162,5 +165,6 @@ class WolfSheep(mesa.Model):
             print("Final number sheep: ", self.schedule.get_type_count(Sheep))
             print(
                 "Final number grass: ",
-                self.schedule.get_type_count(GrassPatch, lambda x: x.fully_grown),
+                self.schedule.get_type_count(
+                    GrassPatch, lambda x: x.fully_grown),
             )
