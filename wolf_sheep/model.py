@@ -12,7 +12,7 @@ Replication of the model found in NetLogo:
 import mesa
 
 from wolf_sheep.scheduler import RandomActivationByTypeFiltered
-from wolf_sheep.agents import Sheep, Wolf, GrassPatch
+from wolf_sheep.agents import Sheep, Wolf, GrassPatch, Cheetah
 
 
 class WolfSheep(mesa.Model):
@@ -30,6 +30,9 @@ class WolfSheep(mesa.Model):
     wolf_reproduce = 0.05
 
     wolf_gain_from_food = 20
+    cheetah_reproduce = 0.05
+
+    cheetah_gain_from_food = 20
 
     grass = False
     grass_regrowth_time = 30
@@ -47,9 +50,12 @@ class WolfSheep(mesa.Model):
         height=20,
         initial_sheep=100,
         initial_wolves=50,
+        intial_cheetah=10,
         sheep_reproduce=0.04,
         wolf_reproduce=0.05,
+        cheetah_reproduce=0.05,
         wolf_gain_from_food=20,
+        cheetah_gain_from_food=25,
         grass=False,
         grass_regrowth_time=30,
         sheep_gain_from_food=4,
@@ -74,8 +80,11 @@ class WolfSheep(mesa.Model):
         self.height = height
         self.initial_sheep = initial_sheep
         self.initial_wolves = initial_wolves
+        self.initial_cheetah = intial_cheetah
         self.sheep_reproduce = sheep_reproduce
         self.wolf_reproduce = wolf_reproduce
+        self.cheetah_reproduce = cheetah_reproduce
+        self.cheetah_gain_from_food = cheetah_gain_from_food
         self.wolf_gain_from_food = wolf_gain_from_food
         self.grass = grass
         self.grass_regrowth_time = grass_regrowth_time
@@ -110,6 +119,15 @@ class WolfSheep(mesa.Model):
             wolf = Wolf(self.next_id(), (x, y), self, True, energy)
             self.grid.place_agent(wolf, (x, y))
             self.schedule.add(wolf)
+
+        # create cheetah
+        for i in range(self.initial_cheetah):
+            x = self.random.randrange(self.width)
+            y = self.random.randrange(self.height)
+            energy = self.random.randrange(2 * self.cheetah_gain_from_food)
+            cheetas = Cheetah(self.next_id(), (x, y), self, True, energy)
+            self.grid.place_agent(cheetas, (x, y))
+            self.schedule.add(cheetas)
 
         # Create grass patches
         if self.grass:

@@ -1,6 +1,6 @@
 import mesa
 
-from wolf_sheep.agents import Wolf, Sheep, GrassPatch
+from wolf_sheep.agents import Wolf, Sheep, GrassPatch, Cheetah
 from wolf_sheep.model import WolfSheep
 
 
@@ -24,6 +24,14 @@ def wolf_sheep_portrayal(agent):
         portrayal["text"] = round(agent.energy, 1)
         portrayal["text_color"] = "White"
 
+    elif type(agent) is Cheetah:
+        portrayal["Shape"] = "wolf_sheep/resources/cheetah.png"
+        # https://icons8.com/web-app/36821/German-Shepherd
+        portrayal["scale"] = 0.9
+        portrayal["Layer"] = 2
+        portrayal["text"] = round(agent.energy, 1)
+        portrayal["text_color"] = "White"
+
     elif type(agent) is GrassPatch:
         if agent.fully_grown:
             portrayal["Color"] = ["#00FF00", "#00CC00", "#009900"]
@@ -38,7 +46,8 @@ def wolf_sheep_portrayal(agent):
     return portrayal
 
 
-canvas_element = mesa.visualization.CanvasGrid(wolf_sheep_portrayal, 20, 20, 500, 500)
+canvas_element = mesa.visualization.CanvasGrid(
+    wolf_sheep_portrayal, 20, 20, 500, 500)
 chart_element = mesa.visualization.ChartModule(
     [
         {"Label": "Wolves", "Color": "#AA0000"},
@@ -74,6 +83,7 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(
-    WolfSheep, [canvas_element, chart_element], "Wolf Sheep Predation", model_params
+    WolfSheep, [canvas_element,
+                chart_element], "Wolf Sheep Predation", model_params
 )
 server.port = 8521
