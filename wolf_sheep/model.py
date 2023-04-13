@@ -8,7 +8,6 @@ Replication of the model found in NetLogo:
     Center for Connected Learning and Computer-Based Modeling,
     Northwestern University, Evanston, IL.
 """
-
 import mesa
 
 from wolf_sheep.scheduler import RandomActivationByTypeFiltered
@@ -99,6 +98,7 @@ class WolfSheep(mesa.Model):
                 "Grass": lambda m: m.schedule.get_type_count(
                     GrassPatch, lambda x: x.fully_grown
                 ),
+                "Cheetah": lambda m: m.schedule.get_type_count(Cheetah),
             }
         )
 
@@ -160,6 +160,7 @@ class WolfSheep(mesa.Model):
                     self.schedule.get_type_count(Sheep),
                     self.schedule.get_type_count(
                         GrassPatch, lambda x: x.fully_grown),
+                    self.schedule.get_type_count(Cheetah),
                 ]
             )
 

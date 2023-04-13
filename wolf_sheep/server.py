@@ -53,6 +53,7 @@ chart_element = mesa.visualization.ChartModule(
         {"Label": "Wolves", "Color": "#AA0000"},
         {"Label": "Sheep", "Color": "#666666"},
         {"Label": "Grass", "Color": "#00AA00"},
+        {"Label": "Cheetah", "Color": "#AA0000"},
     ]
 )
 
@@ -78,6 +79,18 @@ model_params = {
     ),
     "wolf_gain_from_food": mesa.visualization.Slider(
         "Wolf Gain From Food Rate", 20, 1, 50
+    ),
+    "initial_wolves": mesa.visualization.Slider("Initial Cheetah Population", 50, 10, 300),
+    "wolf_reproduce": mesa.visualization.Slider(
+        "Cheetah Reproduction Rate",
+        0.05,
+        0.01,
+        1.0,
+        0.01,
+        description="The rate at which Cheetah agents reproduce.",
+    ),
+    "wolf_gain_from_food": mesa.visualization.Slider(
+        "Cheetah Gain From Food Rate", 20, 1, 50
     ),
     "sheep_gain_from_food": mesa.visualization.Slider("Sheep Gain From Food", 4, 1, 10),
 }
