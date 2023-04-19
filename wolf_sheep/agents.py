@@ -84,6 +84,7 @@ class Sheep(RandomWalker):
         # Find the cell to move to
         # print(move_direction)
         new_pos = self.pos + move_direction
+        move_to = self.pos
         if (new_pos[0] >= 0 and new_pos[0] < 20 and new_pos[1] >= 0 and new_pos[1] < 20):
 
             move_to = tuple(np.array(new_pos))  # self.pos
