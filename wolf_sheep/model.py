@@ -19,8 +19,9 @@ class WolfSheep(mesa.Model):
     Wolf-Sheep Predation Model
     """
 
-    height = 20
-    width = 20
+    height = 100
+    width = 100
+
 
     initial_sheep = 100
     initial_wolves = 50
@@ -45,8 +46,8 @@ class WolfSheep(mesa.Model):
 
     def __init__(
         self,
-        width=20,
-        height=20,
+        width=100,
+        height=100,
         initial_sheep=100,
         initial_wolves=50,
         intial_cheetah=10,
