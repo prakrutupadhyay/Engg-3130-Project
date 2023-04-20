@@ -86,8 +86,9 @@ model_params = {
         "Cheetah Gain From Food Rate", 20, 1, 50
     ),
     "sheep_gain_from_food": mesa.visualization.Slider("Sheep Gain From Food", 4, 1, 10),
-    "height": mesa.visualization.Slider("Grid height", 56, 5, 60),
-    "width": mesa.visualization.Slider("Grid width", 60, 5, 60)
+    "sheep_clustering": mesa.visualization.Slider("Sheep Clustering Radius", 2, 1, 10),
+    "height": mesa.visualization.Slider("Grid height", 60, 5, 60),
+    "width": mesa.visualization.Slider("Grid width", 60, 5, 60),
 }
 canvas_element = mesa.visualization.CanvasGrid(
     wolf_sheep_portrayal, model_params["width"].value, model_params["height"].value, model_params["height"].value*15, model_params["width"].value*15)

@@ -17,11 +17,7 @@ class Sheep(RandomWalker):
         self.energy = energy
 
     def step(self):
-        """
-        A model step. Move, then eat grass and reproduce.
-        """
-        # self.random_move()
-        move_towards_sheep_center(self)
+        move_towards_sheep(self, self.model.sheep_clustering)
         living = True
 
         if self.model.grass:
@@ -52,12 +48,10 @@ class Sheep(RandomWalker):
             self.model.grid.place_agent(lamb, self.pos)
             self.model.schedule.add(lamb)
 
-def move_towards_sheep_center(self):
-    """
-    Move towards the center of mass of nearby sheep.
-        """
-    radius = 2
-    neighbors = self.model.grid.get_neighbors(self.pos, radius, True)
+def move_towards_sheep(self, sheep_clustering):
+#this function is how the sheep go towards each other
+    neighbors = self.model.grid.get_neighbors(self.pos, sheep_clustering, True)
+
 
     sheep_neighbors = [agent for agent in neighbors if isinstance(agent, Sheep)]
 
@@ -65,20 +59,21 @@ def move_towards_sheep_center(self):
         self.random_move()
         return
 
-    # Finds center of mass of the nearby sheep
+    #Finds center of mass of the nearby sheep!
     center_of_mass = np.mean([sheep.pos for sheep in sheep_neighbors], axis=0)
     center_of_mass = tuple(np.round(center_of_mass).astype(int))
 
-    # Find the direction towards the center of mass
+    #Finds the direction towards the center of mass to go near the other sheep
     move_direction = np.array(center_of_mass) - np.array(self.pos)
     move_direction = move_direction / np.linalg.norm(move_direction)
     move_direction = tuple(np.round(move_direction).astype(int))
 
-    # Find the cell to move to
+    #Finds the cell its gonna move to
     new_pos = self.pos + move_direction
     move_to = self.pos
     if (new_pos[0] >= 0 and new_pos[0] < 20 and new_pos[1] >= 0 and new_pos[1] < 20):
         move_to = tuple(np.array(new_pos))
+
 
     # If the cell to move to is not valid, move randomly
     if not self.model.grid.is_cell_empty(move_to[:2]):
