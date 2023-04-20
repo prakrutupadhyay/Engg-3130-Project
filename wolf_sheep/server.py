@@ -48,16 +48,7 @@ def wolf_sheep_portrayal(agent):
     return portrayal
 
 
-canvas_element = mesa.visualization.CanvasGrid(
-    wolf_sheep_portrayal, WolfSheep.height, WolfSheep.width, WolfSheep.height*10, WolfSheep.width*10)
-chart_element = mesa.visualization.ChartModule(
-    [
-        {"Label": "Wolves", "Color": "#AA0000"},
-        {"Label": "Sheep", "Color": "#666666"},
-        {"Label": "Grass", "Color": "#00AA00"},
-        {"Label": "Cheetah", "Color": "#AA0000"},
-    ]
-)
+
 
 model_params = {
     # The following line is an example to showcase StaticText.
@@ -95,8 +86,19 @@ model_params = {
         "Cheetah Gain From Food Rate", 20, 1, 50
     ),
     "sheep_gain_from_food": mesa.visualization.Slider("Sheep Gain From Food", 4, 1, 10),
+    "height": mesa.visualization.Slider("Grid height", 56, 5, 60),
+    "width": mesa.visualization.Slider("Grid width", 60, 5, 60)
 }
-
+canvas_element = mesa.visualization.CanvasGrid(
+    wolf_sheep_portrayal, model_params["width"].value, model_params["height"].value, model_params["height"].value*15, model_params["width"].value*15)
+chart_element = mesa.visualization.ChartModule(
+    [
+        {"Label": "Wolves", "Color": "#AA0000"},
+        {"Label": "Sheep", "Color": "#666666"},
+        {"Label": "Grass", "Color": "#00AA00"},
+        {"Label": "Cheetah", "Color": "#AA0000"},
+    ]
+)
 server = mesa.visualization.ModularServer(
     WolfSheep, [canvas_element,
                 chart_element], "Wolf Sheep Predation", model_params
