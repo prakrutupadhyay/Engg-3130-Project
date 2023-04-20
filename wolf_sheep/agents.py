@@ -21,7 +21,7 @@ class Sheep(RandomWalker):
         A model step. Move, then eat grass and reproduce.
         """
         # self.random_move()
-        self.move_away_from()
+        move_towards_sheep_center(self)
         living = True
 
         if self.model.grass:
@@ -52,66 +52,42 @@ class Sheep(RandomWalker):
             self.model.grid.place_agent(lamb, self.pos)
             self.model.schedule.add(lamb)
 
-    def move_away_from(self):
+def move_towards_sheep_center(self):
+    """
+    Move towards the center of mass of nearby sheep.
         """
-            Move away from the nearest agent of class agent_class.
-        """
-        neighbors = self.model.grid.get_neighbors(self.pos, self.moore, True)
-        wolf_neighbors = []
+    radius = 2
+    neighbors = self.model.grid.get_neighbors(self.pos, radius, True)
 
-        # Find all wolf neighbors
-        for neighbor in neighbors:
+    sheep_neighbors = [agent for agent in neighbors if isinstance(agent, Sheep)]
 
-            this_cell = self.model.grid.get_cell_list_contents([self.pos])
-            wolf = [obj for obj in this_cell if isinstance(obj, Wolf)]
+    if len(sheep_neighbors) == 0:
+        self.random_move()
+        return
 
-            if len(wolf) > 0:
-                wolf_neighbors.append(neighbor)
-        # # If there are no wolf neighbors, move randomly
-        if not wolf_neighbors:
-            self.random_move()
-            return
+    # Finds center of mass of the nearby sheep
+    center_of_mass = np.mean([sheep.pos for sheep in sheep_neighbors], axis=0)
+    center_of_mass = tuple(np.round(center_of_mass).astype(int))
 
-        # Get the position of the nearest wolf neighbor
-        nearest_wolf_pos = min(wolf_neighbors, key=lambda wolf: np.linalg.norm(
-            np.array(self.pos) - np.array(wolf.pos))).pos
+    # Find the direction towards the center of mass
+    move_direction = np.array(center_of_mass) - np.array(self.pos)
+    move_direction = move_direction / np.linalg.norm(move_direction)
+    move_direction = tuple(np.round(move_direction).astype(int))
 
-        # Find the direction away from the nearest wolf neighbor
-        move_direction = np.array(self.pos) - np.array(nearest_wolf_pos)
-        move_direction = move_direction / np.linalg.norm(move_direction)
-        move_direction = tuple(np.round(move_direction).astype(int))
+    # Find the cell to move to
+    new_pos = self.pos + move_direction
+    move_to = self.pos
+    if (new_pos[0] >= 0 and new_pos[0] < 20 and new_pos[1] >= 0 and new_pos[1] < 20):
+        move_to = tuple(np.array(new_pos))
 
-        # Find the cell to move to
-        # print(move_direction)
-        new_pos = self.pos + move_direction
-        move_to = self.pos
-        if (new_pos[0] >= 0 and new_pos[0] < 20 and new_pos[1] >= 0 and new_pos[1] < 20):
+    # If the cell to move to is not valid, move randomly
+    if not self.model.grid.is_cell_empty(move_to[:2]):
+        self.random_move()
+        return
 
-            move_to = tuple(np.array(new_pos))  # self.pos
+    # Move to the chosen cell
+    self.model.grid.move_agent(self, move_to)
 
-        # If the cell to move to is not valid, move randomly
-        if not self.model.grid.is_cell_empty(move_to[:2]):
-            self.random_move()
-            return
-
-        # Move to the chosen cell
-        self.model.grid.move_agent(self, move_to)
-
-        # if agents:
-        #     # Move directly away from the nearest agent of class agent_class
-        #     agent_distances = [self.model.grid.get_distance(
-        #         agent.pos, self.pos) for agent in agents]
-        #     agent_to_flee = agents[agent_distances.index(min(agent_distances))]
-        #     x, y = self.pos
-        #     dx = x - agent_to_flee.pos[0]
-        #     dy = y - agent_to_flee.pos[1]
-        #     new_x, new_y = x + dx, y + dy
-        #     if self.model.grid.is_cell_empty((new_x, new_y)):
-        #         self.model.grid.move_agent(self, (new_x, new_y))
-        #     else:
-        #         self.random_move()
-        # else:
-        #     self.random_move()
 
 
 class Wolf(RandomWalker):

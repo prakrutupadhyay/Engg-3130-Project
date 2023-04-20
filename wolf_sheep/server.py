@@ -15,6 +15,8 @@ def wolf_sheep_portrayal(agent):
         # https://icons8.com/web-app/433/sheep
         portrayal["scale"] = 0.9
         portrayal["Layer"] = 1
+        portrayal["text"] = round(agent.energy, 1)
+        portrayal["text_color"] = "White"
 
     elif type(agent) is Wolf:
         portrayal["Shape"] = "wolf_sheep/resources/wolf.png"
