@@ -14,7 +14,7 @@ def wolf_sheep_portrayal(agent):
         portrayal["Shape"] = "wolf_sheep/resources/sheep.png"
         # https://icons8.com/web-app/433/sheep
         portrayal["scale"] = 0.9
-        portrayal["Layer"] = 1
+        portrayal["Layer"] = 2
         portrayal["text"] = round(agent.energy, 1)
         portrayal["text_color"] = "White"
 
