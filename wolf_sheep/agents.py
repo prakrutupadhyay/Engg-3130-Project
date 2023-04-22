@@ -292,6 +292,15 @@ class Cheetah(RandomWalker):
         if self.energy < 0:
             self.model.grid.remove_agent(self)
             self.model.schedule.remove(self)
+        else:
+            if self.random.random() < self.model.cheetah_reproduce:
+                # Create a new cheetah cub
+                self.energy /= 2
+                cub = Cheetah(
+                    self.model.next_id(), self.pos, self.model, self.moore, self.energy
+                )
+                self.model.grid.place_agent(cub, cub.pos)
+                self.model.schedule.add(cub)
 
     def attack(self, target):
         # Calculate probability of success based on wolf's energy and the target's strength
