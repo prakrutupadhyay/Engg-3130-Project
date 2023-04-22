@@ -75,6 +75,7 @@ model_params = {
     "sheep_gain_from_food": mesa.visualization.Slider("Sheep Gain From Food", 4, 1, 10),
     "sheep_clustering": mesa.visualization.Slider("Sheep Clustering Radius", 2, 1, 10),
     "near_sheep": mesa.visualization.Slider("Wolf vision radius", 1, 1, 10),
+    "near_sheep2": mesa.visualization.Slider("Cheetah vision radius", 1, 1, 10),
     "height": mesa.visualization.Slider("Grid height", 60, 5, 60),
     "width": mesa.visualization.Slider("Grid width", 60, 5, 60),
 }

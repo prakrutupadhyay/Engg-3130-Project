@@ -34,6 +34,7 @@ class WolfSheep(mesa.Model):
     sheep_gain_from_food = 4
     sheep_clustering = 2
     near_sheep=1
+    near_sheep2=1
 
     verbose = False  # Print-monitoring
 
@@ -57,7 +58,8 @@ class WolfSheep(mesa.Model):
         grass_regrowth_time=30,
         sheep_gain_from_food=4,
         sheep_clustering=2,
-        near_sheep=1
+        near_sheep=1,
+        near_sheep2=1
     ):
         """
         Create a new Wolf-Sheep model with the given parameters.
@@ -90,6 +92,7 @@ class WolfSheep(mesa.Model):
         self.sheep_gain_from_food = sheep_gain_from_food
         self.sheep_clustering = sheep_clustering
         self.near_sheep = near_sheep
+        self.near_sheep2 = near_sheep2
 
         self.schedule = RandomActivationByTypeFiltered(self)
         self.grid = mesa.space.MultiGrid(self.width, self.height, torus=True)

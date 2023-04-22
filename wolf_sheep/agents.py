@@ -112,10 +112,10 @@ class Wolf(RandomWalker):
             closest_sheep = sheep[0]
             min_distance = distanceFinder(self.pos, closest_sheep.pos)
 
-            for s in sheep[1:]:
-                dist = distanceFinder(self.pos, s.pos)
+            for current in sheep[1:]:
+                dist = distanceFinder(self.pos, current.pos)
                 if dist < min_distance:
-                    closest_sheep = s
+                    closest_sheep = current
                     min_distance = dist
 
             # Move towards the closest sheep
@@ -205,7 +205,37 @@ class Cheetah(RandomWalker):
         self.energy = energy
 
     def step(self):
-        self.random_move()
+        # check if sheep are around
+        neighbors = self.model.grid.get_neighbors(self.pos, self.model.near_sheep2, True)
+        sheep = [agent for agent in neighbors if isinstance(agent, Sheep)]
+
+        if len(sheep) > 0:
+            # go towards closest sheep
+            closest_sheep = sheep[0]
+            min_distance = distanceFinder(self.pos, closest_sheep.pos)
+
+            for current in sheep[1:]:
+                dist = distanceFinder(self.pos, current.pos)
+                if dist < min_distance:
+                    closest_sheep = current
+                    min_distance = dist
+
+            # Move towards the closest sheep
+            move_direction = np.array(closest_sheep.pos) - np.array(self.pos)
+            move_direction = move_direction / np.linalg.norm(move_direction)
+            move_direction = tuple(np.round(move_direction).astype(int))
+            new_pos = self.pos + move_direction
+
+            # If cant go to the cell go to random place
+            if not self.model.grid.is_cell_empty(new_pos[:2]):
+                self.random_move()
+                return
+
+            # Move to cell
+            self.model.grid.move_agent(self, tuple(np.array(new_pos)))
+        else:
+            #  randomly move
+            self.random_move()
         self.energy -= 1
 
         # If there are sheep present, eat one
