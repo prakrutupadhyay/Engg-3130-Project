@@ -5,11 +5,6 @@ import math
 
 
 class Sheep(RandomWalker):
-    """
-    A sheep that walks around, reproduces (asexually) and gets eaten.
-
-    The init is the same as the RandomWalker.
-    """
 
     energy = None
 
@@ -107,6 +102,32 @@ class Wolf(RandomWalker):
         neighbors = self.model.grid.get_neighbors(self.pos, self.model.near_sheep, True)
         sheep = [agent for agent in neighbors if isinstance(agent, Sheep)]
 
+        # check if cheetah is around
+        cheetahs = [agent for agent in neighbors if isinstance(agent, Cheetah)]
+        if len(cheetahs) > 0:
+            closest_cheetah = cheetahs[0]
+            min_distance = distanceFinder(self.pos, closest_cheetah.pos)
+            for current in cheetahs[1:]:
+                dist = distanceFinder(self.pos, current.pos)
+                if dist < min_distance:
+                    closest_cheetah = current
+                    min_distance = dist
+
+            # if cheetah is too close, run away
+            if min_distance < self.model.near_sheep:
+                move_direction = np.array(self.pos) - np.array(closest_cheetah.pos)
+                move_direction = move_direction / np.linalg.norm(move_direction)
+                move_direction = tuple(np.round(move_direction).astype(int))
+                new_pos = self.pos + move_direction
+
+                # If cant go to the cell go to random place
+                if not self.model.grid.is_cell_empty(new_pos[:2]):
+                    self.random_move()
+                    return
+
+                # Move away from cheetah
+                self.model.grid.move_agent(self, tuple(np.array(new_pos)))
+
         if len(sheep) > 0:
             # go towards closest sheep
             closest_sheep = sheep[0]
@@ -194,9 +215,6 @@ class GrassPatch(mesa.Agent):
 
 
 class Cheetah(RandomWalker):
-    """
-    A cheetah that walks around, reproduces (asexually) and eats sheep.
-    """
 
     energy = None
 
@@ -205,11 +223,39 @@ class Cheetah(RandomWalker):
         self.energy = energy
 
     def step(self):
-        # check if sheep are around
+        # check if sheep or wolfs are around
         neighbors = self.model.grid.get_neighbors(self.pos, self.model.near_sheep2, True)
         sheep = [agent for agent in neighbors if isinstance(agent, Sheep)]
+        wolfs = [agent for agent in neighbors if isinstance(agent, Wolf)]
 
-        if len(sheep) > 0:
+        if len(wolfs) > 0:
+            # go towards closest wolf
+            closest_wolf = wolfs[0]
+            min_distance = distanceFinder(self.pos, closest_wolf.pos)
+
+            for current in wolfs[1:]:
+                dist = distanceFinder(self.pos, current.pos)
+                if dist < min_distance:
+                    closest_wolf = current
+                    min_distance = dist
+
+            # Move towards the closest wolf
+            move_direction = np.array(closest_wolf.pos) - np.array(self.pos)
+            move_direction = move_direction / np.linalg.norm(move_direction)
+            move_direction = tuple(np.round(move_direction).astype(int))
+            new_pos = self.pos + move_direction
+
+            # If cant go to the cell go to random place
+            if not self.model.grid.is_cell_empty(new_pos[:2]):
+                self.random_move()
+                return
+
+            # Move to cell and attempt to attack wolf
+            self.model.grid.move_agent(self, tuple(np.array(new_pos)))
+            if distanceFinder(self.pos, closest_wolf.pos) <= self.model.wolf_attack_range:
+                self.attack(closest_wolf)
+
+        elif len(sheep) > 0:
             # go towards closest sheep
             closest_sheep = sheep[0]
             min_distance = distanceFinder(self.pos, closest_sheep.pos)
@@ -231,35 +277,29 @@ class Cheetah(RandomWalker):
                 self.random_move()
                 return
 
-            # Move to cell
+            # Move to cell and attempt to eat sheep
             self.model.grid.move_agent(self, tuple(np.array(new_pos)))
+            self.eat(closest_sheep)
+
         else:
-            #  randomly move
+            # randomly move
             self.random_move()
+
+        # Reduce energy
         self.energy -= 1
 
-        # If there are sheep present, eat one
-        x, y = self.pos
-        this_cell = self.model.grid.get_cell_list_contents([self.pos])
-        sheep = [obj for obj in this_cell if isinstance(obj, Sheep)]
-        if len(sheep) > 0:
-            sheep_to_eat = self.random.choice(sheep)
-            self.energy += self.model.wolf_gain_from_food
-
-            # Kill the sheep
-            self.model.grid.remove_agent(sheep_to_eat)
-            self.model.schedule.remove(sheep_to_eat)
-
-        # Death or reproduction
+        # Death
         if self.energy < 0:
             self.model.grid.remove_agent(self)
             self.model.schedule.remove(self)
-        else:
-            if self.random.random() < self.model.cheetah_reproduce:
-                # Create a new cheetah cub
-                self.energy /= 2
-                cub = Cheetah(
-                    self.model.next_id(), self.pos, self.model, self.moore, self.energy
-                )
-                self.model.grid.place_agent(cub, cub.pos)
-                self.model.schedule.add(cub)
+
+    def attack(self, target):
+        # Calculate probability of success based on wolf's energy and the target's strength
+        prob_success = self.energy / (self.energy + target.strength)
+        if random.random() < prob_success:
+            self.model.grid.remove_agent(target)
+            self.energy += self.model.energy_gain_from_attack
+
+    def eat(self, target):
+        self.model.grid.remove_agent(target)
+        self.energy += self.model.energy_gain_from_food
