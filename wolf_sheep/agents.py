@@ -1,6 +1,7 @@
 import mesa
 from wolf_sheep.random_walk import RandomWalker
 import numpy as np
+import math
 
 
 class Sheep(RandomWalker):
@@ -84,11 +85,16 @@ def move_towards_sheep(self, sheep_clustering):
     self.model.grid.move_agent(self, move_to)
 
 
+def distanceFinder(firstPos, secondPos):
+    
+    #Calculates distance between two positions
+
+    x1, y1 = firstPos
+    x2, y2 = secondPos
+    return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
 
 class Wolf(RandomWalker):
-    """
-    A wolf that walks around, reproduces (asexually) and eats sheep.
-    """
 
     energy = None
 
@@ -97,11 +103,42 @@ class Wolf(RandomWalker):
         self.energy = energy
 
     def step(self):
-        self.random_move()
+        # check if sheep are around
+        neighbors = self.model.grid.get_neighbors(self.pos, self.model.near_sheep, True)
+        sheep = [agent for agent in neighbors if isinstance(agent, Sheep)]
+
+        if len(sheep) > 0:
+            # go towards closest sheep
+            closest_sheep = sheep[0]
+            min_distance = distanceFinder(self.pos, closest_sheep.pos)
+
+            for s in sheep[1:]:
+                dist = distanceFinder(self.pos, s.pos)
+                if dist < min_distance:
+                    closest_sheep = s
+                    min_distance = dist
+
+            # Move towards the closest sheep
+            move_direction = np.array(closest_sheep.pos) - np.array(self.pos)
+            move_direction = move_direction / np.linalg.norm(move_direction)
+            move_direction = tuple(np.round(move_direction).astype(int))
+            new_pos = self.pos + move_direction
+
+            # If cant go to the cell go to random place
+            if not self.model.grid.is_cell_empty(new_pos[:2]):
+                self.random_move()
+                return
+
+            # Move to cell
+            self.model.grid.move_agent(self, tuple(np.array(new_pos)))
+        else:
+            #  randomly move
+            self.random_move()
+
+        # Reduce energy
         self.energy -= 1
 
         # If there are sheep present, eat one
-        x, y = self.pos
         this_cell = self.model.grid.get_cell_list_contents([self.pos])
         sheep = [obj for obj in this_cell if isinstance(obj, Sheep)]
         if len(sheep) > 0:
@@ -125,6 +162,7 @@ class Wolf(RandomWalker):
                 )
                 self.model.grid.place_agent(cub, cub.pos)
                 self.model.schedule.add(cub)
+
 
 
 class GrassPatch(mesa.Agent):
