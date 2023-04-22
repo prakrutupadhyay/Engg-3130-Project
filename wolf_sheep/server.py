@@ -48,8 +48,6 @@ def wolf_sheep_portrayal(agent):
     return portrayal
 
 
-
-
 model_params = {
     # The following line is an example to showcase StaticText.
     "title": mesa.visualization.StaticText("Parameters:"),
@@ -73,18 +71,7 @@ model_params = {
     "wolf_gain_from_food": mesa.visualization.Slider(
         "Wolf Gain From Food Rate", 20, 1, 50
     ),
-    "initial_wolves": mesa.visualization.Slider("Initial Cheetah Population", 50, 10, 300),
-    "wolf_reproduce": mesa.visualization.Slider(
-        "Cheetah Reproduction Rate",
-        0.05,
-        0.01,
-        1.0,
-        0.01,
-        description="The rate at which Cheetah agents reproduce.",
-    ),
-    "wolf_gain_from_food": mesa.visualization.Slider(
-        "Cheetah Gain From Food Rate", 20, 1, 50
-    ),
+
     "sheep_gain_from_food": mesa.visualization.Slider("Sheep Gain From Food", 4, 1, 10),
     "sheep_clustering": mesa.visualization.Slider("Sheep Clustering Radius", 2, 1, 10),
     "height": mesa.visualization.Slider("Grid height", 60, 5, 60),

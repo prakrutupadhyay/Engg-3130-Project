@@ -46,7 +46,7 @@ class WolfSheep(mesa.Model):
         height,
         initial_sheep=100,
         initial_wolves=50,
-        intial_cheetah=10,
+        intial_cheetah=100,
         sheep_reproduce=0.04,
         wolf_reproduce=0.05,
         cheetah_reproduce=0.05,
