@@ -10,7 +10,7 @@
 
 ## install dependencies
 
-3. pip install -r requirements.txt
+3. pip install -r requirements.txt (enviroment file provided too)
 
 # open jupyter notebook named "demo"
 
